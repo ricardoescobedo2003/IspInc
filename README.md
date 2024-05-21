@@ -3,6 +3,7 @@
 mysql-connector-python
 pip install tkcalendar
 pip3 install svglib pillow
+pip3 install reportlab
 
 
 # Permisos de mysql del servidor

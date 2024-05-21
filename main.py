@@ -9,6 +9,11 @@ from tkinter import Toplevel, Menu
 from tkinter import Menu, ttk, Tk, Toplevel
 from plyer import notification
 from tkcalendar import DateEntry
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
+import datetime
 
 #============================================= FRAMES Y CONFIG ===================================================#
 app = CTk()
@@ -183,7 +188,65 @@ def insertar_datos(no_cliente, nombre, direccion, telefono, fechaInstalacion, eq
                     conexion.close()
                     print("Conexión a MySQL cerrada")
 
-def insertar_pago(no_cliente, nombre, fecha, monto, no_recibo):
+
+def crear_recibo_imagen(dna, nombre, fecha, monto, no_recibo, concepto, folio, id_transaccion, archivo_salida):
+    # Crear una nueva imagen en blanco
+    width, height = 600, 700
+    imagen = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(imagen)
+    
+    # Cargar fuentes
+    font_path = "arial.ttf"  # Ruta a la fuente Arial, ajustar según el entorno
+    font_title = ImageFont.truetype(font_path, 24)
+    font_subtitle = ImageFont.truetype(font_path, 20)
+    font_text = ImageFont.truetype(font_path, 16)
+    font_mono = ImageFont.truetype(font_path, 18)
+    font_bold = ImageFont.truetype(font_path, 20)
+    
+    # Título
+    draw.text((width / 2 - 170, 30), "RatonApp Wisplus", font=font_title, fill="black")
+    
+    # Línea punteada
+    draw.line((20, 110, width - 20, 110), fill="black", width=2)
+    draw.line((20, 114, width - 20, 114), fill="black", width=2)
+    
+    # Información del recibo
+    draw.text((20, 130), f"FECHA    1    {fecha}", font=font_text, fill="black")
+    
+    # Caja de cobro de EBANX
+    draw.rectangle([150, 160, 450, 200], outline="blue", width=2)
+    draw.text((200, 170), "Cobro Wisp Doblenet", font=font_text, fill="black")
+    
+    # Información de pago
+    draw.text((20, 250), f"NOMBRE DE {nombre}", font=font_text, fill="black")
+    draw.text((20, 280), f"DNA #{dna}", font=font_text, fill="black")
+    draw.text((20, 310), f"PAGADA EL DÍA {fecha} A LAS {datetime.datetime.now().strftime('%H:%M')}", font=font_text, fill="black")
+
+    
+    # Valor
+    draw.text((width / 2 - 60, 350), f"VALOR ${monto}", font=font_bold, fill="black")
+    
+    # Línea punteada
+    draw.line((20, 390, width - 20, 390), fill="black", width=2)
+    draw.line((20, 394, width - 20, 394), fill="black", width=2)
+    
+    # Folio e ID
+    draw.text((20, 410), f"Conecepto: {concepto}", font=font_text, fill="black")
+    draw.text((20, 440), f"Recibo: {no_recibo}", font=font_text, fill="black")
+    
+    # Nota de conservación
+    draw.text((width / 2 - 120, 470), "*Conserva el comprobante*", font=font_text, fill="black")
+    draw.text((width / 2 - 120, 500), "Software por Ricardo Escobedo", font=font_text, fill="black")
+
+
+
+    
+    # Guardar la imagen
+    imagen.save(archivo_salida)
+    MessageBox.showinfo("Recibo", f"Recibo de pago guardado como {archivo_salida}")
+
+
+def insertar_pago(no_cliente, nombre, fecha, monto, no_recibo, conceptop):
             # Conexión a la base de datos
             conexion =  conectar_db()
 
@@ -206,8 +269,20 @@ def insertar_pago(no_cliente, nombre, fecha, monto, no_recibo):
                 if conexion.is_connected():
                     cursor.close()
                     conexion.close()
-                    print("Conexión a MySQL cerrada")
+                    resultado = MessageBox.askquestion("Recibo", "Desea generar un recibo PNG?")
 
+                    if resultado == "yes":
+                        dna = no_cliente
+                        nombre = nombre
+                        fecha = datetime.datetime.now().strftime("%d/%m/%Y")
+                        monto = monto
+                        no_recibo = no_recibo
+                        concepto = conceptop
+                        folio = "345DNA231LK897"
+                        id_transaccion = "1OTLC50D66FSDIH"
+                        archivo = nombre + ".png"
+                        archivo_salida = archivo
+                        crear_recibo_imagen(dna, nombre, fecha, monto, no_recibo, concepto, folio, id_transaccion, archivo_salida)
 def crearPago():
     toplevel_window = CTkToplevel(app)
     toplevel_window.geometry("1000x500")
@@ -231,8 +306,9 @@ def crearPago():
          fecha = fechaEntry.get()
          monto = montoEntry.get()
          no_recibo = noReciboEntry.get()
+         conceptop = conceptoEntry.get()
 
-         insertar_pago(no_cliente, nombre, fecha, monto, no_recibo)
+         insertar_pago(no_cliente, nombre, fecha, monto, no_recibo, conceptop)
 
     dnaLabel = CTkLabel(master=toplevel_window,
                     text="DNA del Cliente",
@@ -274,6 +350,15 @@ def crearPago():
                         height=30,
                         width=150)
     
+    coceptoLabel = CTkLabel(master=toplevel_window,
+                          text="Concepto")
+    conceptoEntry = CTkComboBox(master=toplevel_window,
+                                values=["Servicio de internet",
+                                        "Pago pendiente",
+                                        "Servicio retrasado",
+                                        "Excelente usuario"]
+                                )
+    
     guardarPagoButton = CTkButton(master=panel2,
                         text="Crear Pago",
                         image=CTkImage(dark_image=crearPagosIcono,
@@ -285,6 +370,7 @@ def crearPago():
                         text="Ver Pagos",
                         image=CTkImage(dark_image=verPagosIcono,
                                         light_image=verPagosIcono),
+                                        command=verPagos
                                         ) 
       
     salirButton1 = CTkButton(master=panel2,
@@ -327,6 +413,11 @@ def crearPago():
     noReciboLbel.place(relx=0.4,
                        rely=0.3)
     noReciboEntry.place(relx=0.5,
+                        rely=0.3)
+    
+    coceptoLabel.place(relx=0.7,
+                       rely=0.3)
+    conceptoEntry.place(relx=0.8,
                         rely=0.3)
     
     panel2.place(relx=0.0,
