@@ -1,7 +1,5 @@
 # IspInc
 
-# Instalar requerimientos
-pip install -r requirements.txt
 
 # Permisos de mysql del servidor
 CREATE USER 'dni'@'%' IDENTIFIED BY 'MinuzaFea265/';
