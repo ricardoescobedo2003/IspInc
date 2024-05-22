@@ -14,7 +14,7 @@ from reportlab.pdfgen import canvas
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import datetime
-
+import otro
 #============================================= FRAMES Y CONFIG ===================================================#
 app = CTk()
 app.title("Raton App")
@@ -453,6 +453,9 @@ def verPagos():
     tree.pack(expand=True, fill='both')
 
     conn.close()
+
+
+
 
 
 def web():
