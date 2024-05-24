@@ -14,10 +14,11 @@ from reportlab.pdfgen import canvas
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import datetime
-import otro
+import corteCliente
+
 #============================================= FRAMES Y CONFIG ===================================================#
 app = CTk()
-app.title("Raton App")
+app.title("Raton App - Servidor")
 app.geometry("1200x780")
 app.resizable(False, False)
 set_appearance_mode("light")
@@ -51,6 +52,10 @@ eliminarIconoPhoto = ImageTk.PhotoImage(eliminarIcono)
 
 salirIcono = Image.open("icons/salir.png")
 salirIconoPhoto = ImageTk.PhotoImage(salirIcono)
+
+
+networkIcono = Image.open("icons/network-error.png")
+networkIconoPhoto = ImageTk.PhotoImage(networkIcono)
 
 
 elementary = Image.open("icons/distributor-logo.png")
@@ -522,7 +527,11 @@ verPagosButton = CTkButton(master=panel,
                                     command=verPagos)
 
 
-
+corteButton= CTkButton(master=panel,
+                     text="Cortes Red",
+                     image=CTkImage(dark_image=networkIcono,
+                                    light_image=networkIcono),
+                                    command=corteCliente.corte)
 #=============================================== BOTONES =====================================================#
 
 
@@ -724,6 +733,8 @@ crearPagosButton.place(relx=0.2,
 verPagosButton.place(relx=0.2,
                       rely=0.6)
 
+corteButton.place(relx=0.2,
+                      rely=0.7)
 
 dnaLabel.place(relx=0.1,
                rely=0.1
@@ -798,6 +809,7 @@ panel.place(relx=0.0,
             rely=0.0,
             relwidth=0.2,
             relheight=1.0)
+
 
 banner.place(relx=0.0,
             rely=0.0,

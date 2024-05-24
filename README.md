@@ -1,7 +1,10 @@
 # IspInc
 
-# Instalar requerimientos
-pip install -r requirements.txt
+mysql-connector-python
+pip install tkcalendar
+pip3 install svglib pillow
+pip3 install reportlab
+
 
 # Permisos de mysql del servidor
 CREATE USER 'dni'@'%' IDENTIFIED BY 'MinuzaFea265/';
@@ -12,7 +15,7 @@ FLUSH PRIVILEGES;
 
 # Permisos SQL
 sudo nano /etc/mysql/my.cnf
- # bind-address = 127.0.0.1
+# bind-address = 127.0.0.1
 
 sudo systemctl restart mysql
 
